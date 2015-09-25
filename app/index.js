@@ -3,9 +3,35 @@ var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var kevoree = require('kevoree-library');
 var semverRegex = require('semver-regex');
+var factory = new kevoree.factory.DefaultKevoreeFactory();
 
 var TDEFS = ['Component', 'Group', 'Channel', 'Node'];
 var ATTR_TYPES = ['string', 'boolean', 'int', 'float', 'long', 'double', 'short', 'byte', 'char'];
+
+function matcher(input, pattern) {
+    var match = input.match(pattern);
+    return (match && match.length && match.length === 1 && match[0] === input);
+}
+
+function createPackagesTree(packages, index, parent) {
+    // create a new package using packages[index] name
+    var p = factory.createPackage();
+    p.name = packages[index];
+
+    // check recursivity condition
+    if (index === packages.length - 1) {
+        // this is the last package in packages (eg. in 'org.kevoree.library.js' => this is 'js')
+        parent.addPackages(p);
+        // end recursion by sending the last package back
+        return p;
+    } else {
+        // this is not the last package
+        parent.addPackages(p);
+
+        // recursion
+        return createPackagesTree(packages, index+1, p);
+    }
+}
 
 module.exports = yeoman.generators.Base.extend({
     initializing: function () {
@@ -32,8 +58,8 @@ module.exports = yeoman.generators.Base.extend({
                 message: 'What is the name of your TypeDefinition?',
                 validate: function (answer) {
                     var pattern = /[A-Z][\w]*/;
-                    if (matcher(answer, pattern)) return true;
-                    else return 'Allowed pattern for name is '+pattern.toString();
+                    if (matcher(answer, pattern)) { return true; }
+                    else { return 'Allowed pattern for name is '+pattern.toString(); }
                 }
             },
             {
@@ -50,8 +76,8 @@ module.exports = yeoman.generators.Base.extend({
                 message: 'What is the name of your DeployUnit?',
                 validate: function (answer) {
                     var pattern = /[\w-_:.]*/;
-                    if (matcher(answer, pattern)) return true;
-                    else return 'Allowed pattern for deployUnit is '+pattern.toString();
+                    if (matcher(answer, pattern)) { return true; }
+                    else { return 'Allowed pattern for deployUnit is '+pattern.toString(); }
                 }
             },
             {
@@ -60,8 +86,8 @@ module.exports = yeoman.generators.Base.extend({
                 message: 'What is the name of your package? (ex: com.example)',
                 validate: function (answer) {
                     var pattern = /[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*/g;
-                    if (matcher(answer, pattern)) return true;
-                    else return 'Allowed pattern for package is '+pattern.toString();
+                    if (matcher(answer, pattern)) { return true; }
+                    else { return 'Allowed pattern for package is '+pattern.toString(); }
                 }
             }
 
@@ -192,19 +218,10 @@ module.exports = yeoman.generators.Base.extend({
 
     writing: {
         app: function () {
-            var factory = new kevoree.factory.DefaultKevoreeFactory();
             var model = factory.createContainerRoot();
 
             var pkgs = this.props.package.split('.');
-            pkgs.forEach(function (name, i) {
-                var pkg = factory.createPackage();
-                pkg.name = name;
-                if (i === 0) {
-                    model.addPackages(pkg);
-                } else {
-                    model.findPackagesByID(pkgs[i-1]).addPackages(pkg);
-                }
-            });
+            var pkg = createPackagesTree(pkgs, 0, model);
 
             var tdef;
             switch (this.props.tdef) {
@@ -233,7 +250,6 @@ module.exports = yeoman.generators.Base.extend({
 
             tdef.addDeployUnits(du);
 
-            var pkg = model.select('**/packages[name='+pkgs[pkgs.length-1]+']').get(0);
             pkg.addTypeDefinitions(tdef);
 
             this.props.filters.forEach(function (filter) {
@@ -277,8 +293,3 @@ module.exports = yeoman.generators.Base.extend({
         }
     }
 });
-
-function matcher(input, pattern) {
-    var match = input.match(pattern);
-    return (match && match.length && match.length == 1 && match[0] == input);
-}
