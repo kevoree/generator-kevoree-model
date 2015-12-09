@@ -32,7 +32,7 @@ npm install -g generator-kevoree-model
 Finally, initiate the generator:
 
 ```bash
-yo generator-kevoree-model
+yo kevoree-model
 ```
 
 ### Getting To Know Yeoman
