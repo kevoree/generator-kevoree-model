@@ -26,7 +26,7 @@ Yeoman travels light. He didn't pack any generators when he moved in. You can th
 To install generator-generator-kevoree-model from npm, run:
 
 ```bash
-npm install -g generator-generator-kevoree-model
+npm install -g generator-kevoree-model
 ```
 
 Finally, initiate the generator:
