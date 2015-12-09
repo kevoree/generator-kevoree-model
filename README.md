@@ -1,4 +1,4 @@
-# generator-generator-kevoree-model [![Build Status](https://secure.travis-ci.org/maxleiko/generator-generator-kevoree-model.png?branch=master)](https://travis-ci.org/maxleiko/generator-generator-kevoree-model)
+# generator-kevoree-model
 
 > [Yeoman](http://yeoman.io) generator
 
