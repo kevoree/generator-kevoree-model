@@ -202,7 +202,7 @@ module.exports = yeoman.generators.Base.extend({
           if (props.add) {
             self.prompt(namePrompt.concat(valuePrompt), function (props) {
               self.props.filters.push(props);
-              promptAddAttr(callback);
+              promptAddFilter(callback);
             });
           } else {
             callback();
@@ -210,31 +210,37 @@ module.exports = yeoman.generators.Base.extend({
         });
       }
 
-      if (!props.virtual) {
-        self.prompt(duPrompt, function (props) {
-          self.props.du = props;
-          promptAddFilter(function () {
-            if (self.props.tdef === TDEFS[0]) {
-              promptAddInput(function () {
-                promptAddOutput(function () {
+      if (props.virtual) {
+          promptAddAttr(function () {
+              promptAddFilter(function () {
+                if (self.props.tdef === TDEFS[0]) {
+                  promptAddInput(function () {
+                    promptAddOutput(function () {
+                      done();
+                    });
+                  });
+                } else {
                   done();
-                });
+                }
               });
-            } else {
-              done();
-            }
           });
-        });
       } else {
-        if (self.props.tdef === TDEFS[0]) {
-          promptAddInput(function () {
-            promptAddOutput(function () {
-              done();
+          self.prompt(duPrompt, function (props) {
+            self.props.du = props;
+            promptAddAttr(function () {
+                promptAddFilter(function () {
+                  if (self.props.tdef === TDEFS[0]) {
+                    promptAddInput(function () {
+                      promptAddOutput(function () {
+                        done();
+                      });
+                    });
+                  } else {
+                    done();
+                  }
+                });
             });
           });
-        } else {
-          done();
-        }
       }
     });
   },
@@ -271,7 +277,7 @@ module.exports = yeoman.generators.Base.extend({
 
       if (this.props.virtual) {
         var virtual = factory.createValue();
-        virtual.name = "virtual";
+        virtual.name = 'virtual';
         virtual.value = true;
         tdef.addMetaData(virtual);
       } else {
