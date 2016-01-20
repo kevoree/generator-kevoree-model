@@ -212,17 +212,15 @@ module.exports = yeoman.generators.Base.extend({
 
       if (props.virtual) {
           promptAddAttr(function () {
-              promptAddFilter(function () {
-                if (self.props.tdef === TDEFS[0]) {
-                  promptAddInput(function () {
-                    promptAddOutput(function () {
-                      done();
-                    });
+              if (self.props.tdef === TDEFS[0]) {
+                promptAddInput(function () {
+                  promptAddOutput(function () {
+                    done();
                   });
-                } else {
-                  done();
-                }
-              });
+                });
+              } else {
+                done();
+              }
           });
       } else {
           self.prompt(duPrompt, function (props) {
@@ -324,7 +322,7 @@ module.exports = yeoman.generators.Base.extend({
       });
 
       var modelStr = factory.createJSONSerializer().serialize(model);
-      var filepath = this.destinationPath(this.props.name+'-'+this.props.version+'.json');
+      var filepath = this.destinationPath(this.props.tdef+'-'+this.props.name+'-'+this.props.version+'.json');
       this.fs.write(filepath, JSON.stringify(JSON.parse(modelStr), null, 2));
     }
   }
